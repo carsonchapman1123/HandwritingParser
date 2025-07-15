@@ -6,7 +6,7 @@ from skimage.transform import resize
 
 def boundaries(binarized,axis):
     # Variables named assuming axis = 0; algorithm valid for axis=1
-    # [1,0][axis] effectively swaps axes for summing
+    # [1,0][axis] effectively swaps axes for summing.
     rows = np.sum(binarized, axis = [1,0][axis]) > 0
     rows[1:] = np.logical_xor(rows[1:], rows[:-1])
     change = np.nonzero(rows)[0]
@@ -30,7 +30,6 @@ def separate(img):
     for r1,r2 in row_bounds:
         img = binarized[r1:r2,:]
         col_bounds = boundaries(img,axis=1)
-        print("COL BOUNDS", col_bounds)
         rects = [r1,r2,col_bounds[0][0],col_bounds[0][1]]
         cropped.append(np.array(orig_img[rects[0]:rects[1],rects[2]:rects[3]]/pure_white))
     return cropped
@@ -45,9 +44,9 @@ def partition(data,target,p):
     return train_data, train_target, test_data, test_target
 
 # Import big images:
-big_a = imread("a.png", mode="L")#, flatten = True)
-big_b = imread("b.png", mode="L")#, flatten = True)
-big_c = imread("c.png", mode="L")#, flatten = True)
+big_a = imread("a.png", mode="L")
+big_b = imread("b.png", mode="L")
+big_c = imread("c.png", mode="L")
 
 # Separate the images into lists of small images
 a_imgs = separate(big_a)
@@ -62,8 +61,8 @@ targets = [0 for _ in range(len(a_imgs))] + [1 for _ in range(len(b_imgs))] + [2
 for i in range(len(images)):
     images[i] = resize(images[i], (10,10))
 
-# shuffle the images and targets but keep the targets corresponding to the correct
-# image after reshuffling
+# Shuffle the images and targets but keep the targets corresponding to the correct
+# Image after reshuffling.
 images_and_labels = list(zip(images,targets))
 rd.shuffle(images_and_labels)
 images = []
@@ -72,39 +71,39 @@ for i in range(len(images_and_labels)):
     images.append(images_and_labels[i][0])
     targets.append(images_and_labels[i][1])
 
-# convert to numpy array
+# Convert to numpy array.
 images = np.array(images)
 targets = np.array(targets)
 
-# reshape the images numpy array so that it is the correct shape for the classifier
+# Reshape the images numpy array so that it is the correct shape for the classifier.
 n_samples = len(images)
 images = images.reshape((n_samples, -1))
 
-# Partition the data and targets into training and test data and targets
+# Partition the data and targets into training and test data and targets.
 partition = partition(images,targets,0.5)
 train_data = partition[0]
 train_target = partition[1]
 test_data = partition[2]
 test_target = partition[3]
 
-# Create the classified and fit the training data to the target data
+# Create the classified and fit the training data to the target data.
 clf = svm.SVC(gamma = 0.001, C= 100)
 clf.fit(train_data,train_target)
 
 # Create lists of expected and predicted values using the targets of the
-# test images and the classifier on the images respectively
+# test images and the classifier on the images respectively.
 expected = test_target
 predicted = clf.predict(test_data)
 
-# Output the predicted targets versus actual targets to the console
+# Output the predicted targets versus actual targets to the console.
 print("Predicted:", predicted)
 print("Truth:    ", expected)
 
 # Calculate the accuracy by counting the number of correct guesses
-# and dividing by the number of total guesses and then print
+# and dividing by the number of total guesses and then print.
 test_size = len(test_data)
 correct_predictions = 0
 for i in range(test_size):
     if predicted[i] == expected[i]:
         correct_predictions += 1
-print("Accuracy", 100 * correct_predictions / float(test_size), "%")
+print(f"Accuracy: {100 * correct_predictions / test_size}%")
