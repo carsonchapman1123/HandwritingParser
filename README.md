@@ -1,3 +1,2 @@
-# Machine Learning
-
-Currently the only program here uses a classifier to identify letters written on a piece of white paper in dark ink. As long as the program has roughly five of each letter to learn from, it seems to work with 100% accuracy. I have provided three pictures of lowercase a’s, b’s, and c’s.
+# HandwritingParser
+This program uses scikit-learn to train a model for detecting handwritten letters in an image. It uses scikit-image and NumPy to parse the images to pass to scikit-learn. Currently it is only trained on the letters a, b, and c from the images in this repository. It could be trained to detect the entire alphabet by adding more images of handwritten letters.

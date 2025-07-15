@@ -1,36 +1,26 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Homework 8
-
-Carson Chapman
-504670786
-"""
-
-import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import svm
-from scipy.misc import imread # using scipy's imread
-from skimage.transform import resize
 import random as rd
+from imageio.v3 import imread
+from sklearn import svm
+from skimage.transform import resize
 
 def boundaries(binarized,axis):
-    # variables named assuming axis = 0; algorithm valid for axis=1
+    # Variables named assuming axis = 0; algorithm valid for axis=1
     # [1,0][axis] effectively swaps axes for summing
-    rows = np.sum(binarized,axis = [1,0][axis]) > 0
+    rows = np.sum(binarized, axis = [1,0][axis]) > 0
     rows[1:] = np.logical_xor(rows[1:], rows[:-1])
     change = np.nonzero(rows)[0]
     ymin = change[::2]
     ymax = change[1::2]
     height = ymax-ymin
-    too_small = 10 # real letters will be bigger than 10px by 10px
+    too_small = 10 # Real letters will be bigger than 10px by 10px.
     ymin = ymin[height>too_small]
     ymax = ymax[height>too_small]
-    return zip(ymin,ymax)
+    return list(zip(ymin,ymax))
 
 def separate(img):
     orig_img = img.copy()
-    pure_white = 255.
+    pure_white = 255
     white = np.max(img)
     black = np.min(img)
     thresh = (white+black)/2.0
@@ -40,31 +30,31 @@ def separate(img):
     for r1,r2 in row_bounds:
         img = binarized[r1:r2,:]
         col_bounds = boundaries(img,axis=1)
+        print("COL BOUNDS", col_bounds)
         rects = [r1,r2,col_bounds[0][0],col_bounds[0][1]]
         cropped.append(np.array(orig_img[rects[0]:rects[1],rects[2]:rects[3]]/pure_white))
     return cropped
 
-# data, target, percentage used for training vs testing
+# Data, target, percentage used for training vs testing.
 def partition(data,target,p):
-    m = int(p*len(data))
+    m = int(p * len(data))
     train_data = data[:m,:]
     train_target = target[:m]
     test_data = data[m:]
     test_target = target[m:]
     return train_data, train_target, test_data, test_target
 
-# SCRIPT:
-# import big images:
-big_a = imread("a.png", flatten = True)
-big_b = imread("b.png", flatten = True)
-big_c = imread("c.png", flatten = True)
+# Import big images:
+big_a = imread("a.png", mode="L")#, flatten = True)
+big_b = imread("b.png", mode="L")#, flatten = True)
+big_c = imread("c.png", mode="L")#, flatten = True)
 
 # Separate the images into lists of small images
 a_imgs = separate(big_a)
 b_imgs = separate(big_b)
 c_imgs = separate(big_c)
 
-# create a list of all of the images and another list with their corresponding targets
+# Create a list of all of the images and another list with their corresponding targets.
 images = a_imgs + b_imgs + c_imgs
 targets = [0 for _ in range(len(a_imgs))] + [1 for _ in range(len(b_imgs))] + [2 for _ in range(len(c_imgs))]
 
@@ -107,8 +97,8 @@ expected = test_target
 predicted = clf.predict(test_data)
 
 # Output the predicted targets versus actual targets to the console
-print "Predicted:", predicted
-print "Truth:    ", expected
+print("Predicted:", predicted)
+print("Truth:    ", expected)
 
 # Calculate the accuracy by counting the number of correct guesses
 # and dividing by the number of total guesses and then print
@@ -117,4 +107,4 @@ correct_predictions = 0
 for i in range(test_size):
     if predicted[i] == expected[i]:
         correct_predictions += 1
-print "Accuracy", 100 * correct_predictions / float(test_size), "%"
+print("Accuracy", 100 * correct_predictions / float(test_size), "%")
